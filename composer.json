@@ -1,0 +1,16 @@
+{
+	"name": "therakib7/rhef",
+	"description": "Easyform",
+	"authors": [
+		{
+			"name": "Rakib",
+			"email": "therakib7@gmail.com"
+		}
+	],
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Rhef\\": "app"
+		}
+	}
+}
