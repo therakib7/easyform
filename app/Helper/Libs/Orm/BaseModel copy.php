@@ -1,5 +1,9 @@
+
+
 <?php
+
 class BaseModel {
+	
     protected $table;
     protected $primaryKey = 'ID';
     protected $orderByColumn = '';
@@ -7,26 +11,21 @@ class BaseModel {
 
     public function find($id) {
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->table} WHERE {$this->primaryKey} = %d", $id);
-        return $wpdb->get_row($sql);
+        return $wpdb->get_row("SELECT * FROM {$this->table} WHERE {$this->primaryKey} = {$id}");
     }
 
     public function get($where = []) {
         global $wpdb;
         $conditions = '1=1';
-        $placeholders = [];
         foreach ($where as $key => $value) {
-            $conditions .= " AND {$key} = %s";
-            $placeholders[] = $value;
+            $conditions .= " AND {$key} = '{$value}'";
         }
-        $sql = $wpdb->prepare("SELECT * FROM {$this->table} WHERE {$conditions}", ...$placeholders);
-        return $wpdb->get_results($sql);
+        return $wpdb->get_results("SELECT * FROM {$this->table} WHERE {$conditions}");
     }
 
     public function getAll() {
         global $wpdb;
-        $sql = "SELECT * FROM {$this->table}";
-        return $wpdb->get_results($sql);
+        return $wpdb->get_results("SELECT * FROM {$this->table}");
     }
 
     public function insert($data) {
@@ -54,48 +53,47 @@ class BaseModel {
     public function paginate($perPage = 10, $currentPage = 1) {
         global $wpdb;
         $offset = ($currentPage - 1) * $perPage;
+
         $orderBy = '';
         if ($this->orderByColumn) {
             $orderBy = "ORDER BY {$this->orderByColumn} {$this->orderByDirection}";
         }
-        $sql = "SELECT * FROM {$this->table} {$orderBy} LIMIT {$offset}, {$perPage}";
+
+        $rows = $wpdb->get_results("SELECT * FROM {$this->table} {$orderBy} LIMIT {$offset}, {$perPage}");
+
+        // Reset order by for the next query
         $this->orderByColumn = '';
         $this->orderByDirection = 'ASC';
-        return $wpdb->get_results($sql);
-    }
 
-    // Relationship Methods
+        return $rows;
+    }
 
     // One-To-One Relationship
     protected function hasOne($relatedModel, $foreignKey, $localKey) {
         global $wpdb;
         $related = new $relatedModel();
-        $sql = $wpdb->prepare("SELECT * FROM {$related->table} WHERE {$foreignKey} = %s", $this->{$localKey});
-        return $wpdb->get_row($sql);
+        return $wpdb->get_row("SELECT * FROM {$related->table} WHERE {$foreignKey} = {$this->{$localKey}}");
     }
 
     // One-To-Many Relationship
     protected function hasMany($relatedModel, $foreignKey, $localKey) {
         global $wpdb;
         $related = new $relatedModel();
-        $sql = $wpdb->prepare("SELECT * FROM {$related->table} WHERE {$foreignKey} = %s", $this->{$localKey});
-        return $wpdb->get_results($sql);
+        return $wpdb->get_results("SELECT * FROM {$related->table} WHERE {$foreignKey} = {$this->{$localKey}}");
     }
 
     // Belongs To (One-To-Many Inverse)
     protected function belongsTo($relatedModel, $foreignKey, $localKey) {
         global $wpdb;
         $related = new $relatedModel();
-        $sql = $wpdb->prepare("SELECT * FROM {$related->table} WHERE {$related->primaryKey} = %s", $this->{$localKey});
-        return $wpdb->get_row($sql);
+        return $wpdb->get_row("SELECT * FROM {$related->table} WHERE {$related->primaryKey} = {$this->{$localKey}}");
     }
 
     // Has One Of Many
     protected function hasOneOfMany($relatedModel, $foreignKey, $localKey, $orderColumn) {
         global $wpdb;
         $related = new $relatedModel();
-        $sql = $wpdb->prepare("SELECT * FROM {$related->table} WHERE {$foreignKey} = %s ORDER BY {$orderColumn} DESC LIMIT 1", $this->{$localKey});
-        return $wpdb->get_row($sql);
+        return $wpdb->get_row("SELECT * FROM {$related->table} WHERE {$foreignKey} = {$this->{$localKey}} ORDER BY {$orderColumn} DESC LIMIT 1");
     }
 
     // Has One Through
@@ -103,10 +101,9 @@ class BaseModel {
         global $wpdb;
         $related = new $relatedModel();
         $through = new $throughModel();
-        $sql = $wpdb->prepare("SELECT {$related->table}.* FROM {$related->table}
+        return $wpdb->get_row("SELECT {$related->table}.* FROM {$related->table}
                                 INNER JOIN {$through->table} ON {$through->table}.{$secondKey} = {$related->table}.{$related->primaryKey}
-                                WHERE {$through->table}.{$firstKey} = %s", $this->{$localKey});
-        return $wpdb->get_row($sql);
+                                WHERE {$through->table}.{$firstKey} = {$this->{$localKey}}");
     }
 
     // Has Many Through
@@ -114,9 +111,8 @@ class BaseModel {
         global $wpdb;
         $related = new $relatedModel();
         $through = new $throughModel();
-        $sql = $wpdb->prepare("SELECT {$related->table}.* FROM {$related->table}
-                                INNER JOIN {$through->table} ON {$through->table}.{$secondKey} = {$related->table}.{$related->primaryKey}
-                                WHERE {$through->table}.{$firstKey} = %s", $this->{$localKey});
-        return $wpdb->get_results($sql);
+        return $wpdb->get_results("SELECT {$related->table}.* FROM {$related->table}
+                                   INNER JOIN {$through->table} ON {$through->table}.{$secondKey} = {$related->table}.{$related->primaryKey}
+                                   WHERE {$through->table}.{$firstKey} = {$this->{$localKey}}");
     }
 }
