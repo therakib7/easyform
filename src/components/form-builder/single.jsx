@@ -5,19 +5,62 @@ import './style.css'
 
 import FormField from './FormField';
 
-const sampleFields = [
-	{
-		label: 'Text Field',
-		icon: 'icon-text-field',
-		type: 'text',
-	},
-	{
-		label: 'Checkbox',
-		icon: 'icon-checkbox',
-		type: 'checkbox',
-	},
-	// Add more test fields as needed
-];
+const multiStepForm = {
+	steps: [
+		{
+			title: 'Step 1: Personal Information',
+			rows: [
+				{
+					cols: [
+						{
+							fields: [
+								{ label: 'First Name', type: 'text', required: true },
+								{ label: 'Last Name', type: 'text', required: true }
+							]
+						}
+					]
+				},
+				{
+					cols: [
+						{
+							fields: [
+								{ label: 'Email', type: 'email', required: true, placeholder: 'example@example.com' }
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			title: 'Step 2: Address Information',
+			rows: [
+				{
+					cols: [
+						{
+							fields: [
+								{ label: 'Address Line 1', type: 'text', required: true },
+								{ label: 'Address Line 2', type: 'text' }
+							]
+						}
+					]
+				},
+				{
+					cols: [
+						{
+							fields: [
+								{ label: 'City', type: 'text', required: true },
+								{ label: 'State', type: 'text', required: true },
+								{ label: 'Zip Code', type: 'text', required: true, maxLength: 5 }
+							]
+						}
+					]
+				}
+			]
+		},
+		// Additional steps can be added here
+	]
+};
+
 
 const FormBuilder = () => {
 	const [fields, setFields] = useState([
@@ -55,7 +98,7 @@ const FormBuilder = () => {
 		},
 		// Add more categories as needed
 	]);
-	
+
 	const [canvas, setCanvas] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [draggedField, setDraggedField] = useState(null);
