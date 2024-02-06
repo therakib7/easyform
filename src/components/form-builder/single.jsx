@@ -5,8 +5,57 @@ import './style.css'
 
 import FormField from './FormField';
 
+const sampleFields = [
+	{
+		label: 'Text Field',
+		icon: 'icon-text-field',
+		type: 'text',
+	},
+	{
+		label: 'Checkbox',
+		icon: 'icon-checkbox',
+		type: 'checkbox',
+	},
+	// Add more test fields as needed
+];
+
 const FormBuilder = () => {
-	const [fields, setFields] = useState([]);
+	const [fields, setFields] = useState([
+		{
+			label: 'Category 1',
+			fields: [
+				{
+					label: 'Field 1',
+					icon: 'icon1',
+					type: 'text',
+				},
+				{
+					label: 'Field 2',
+					icon: 'icon2',
+					type: 'checkbox',
+				},
+				// Add more fields as needed for Category 1
+			],
+		},
+		{
+			label: 'Category 2',
+			fields: [
+				{
+					label: 'Field 3',
+					icon: 'icon3',
+					type: 'radio',
+				},
+				{
+					label: 'Field 4',
+					icon: 'icon4',
+					type: 'select',
+				},
+				// Add more fields as needed for Category 2
+			],
+		},
+		// Add more categories as needed
+	]);
+	
 	const [canvas, setCanvas] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [draggedField, setDraggedField] = useState(null);
